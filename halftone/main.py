@@ -1,3 +1,6 @@
+import argparse
+import sys
+
 from PIL import Image
 import numpy as np
 
@@ -25,7 +28,14 @@ def apply_kernel(img, f, side=5):
     return arr[0:rows-rpad, 0:cols-cpad]
 
 if __name__ == '__main__':
-    img = Image.open('lenna.png')
+    parser = argparse.ArgumentParser(
+        prog='halftone',
+        description='Apply a halftone transform to an input image and write its result to stdout.')
+
+    parser.add_argument('image_filename', help='The image file to transform.')
+    args = parser.parse_args()
+
+    img = Image.open(args.image_filename)
     gimg = img.convert('L')
     arr = np.array(gimg)
 
@@ -73,5 +83,6 @@ if __name__ == '__main__':
 
     arr = apply_kernel(arr, lambda k: avg_kernel(k, invert=False), side=5)
 
-    halftone_img = Image.fromarray(arr).convert('L')
-    halftone_img.save('halftone.png')
+    (Image.fromarray(arr)
+        .convert('L')
+        .save(sys.stdout, format='png'))
